@@ -383,12 +383,12 @@ COMMENT ON TABLE DELIVERY_STATUS IS 'Tracks delivery progress and driver assignm
 
 -- Admin User
 INSERT INTO ADMIN (Name, Password) VALUES
-('System Admin', '$2y$10$samplehashedpassword123');
+('System Admin', '4321');
 
 -- Professional Restaurants
 INSERT INTO RESTAURANT (Name, Address, phone_no, Password) VALUES
 ('Nagpal Fine Dine', 'Bhupindra Road,Patiala', '9876543001', '$2y$10$samplehash'),
-('The Delicious Corner', 'Model Town, Patiala,', '9876543002', '$2y$10$samplehash'),
+('The Delicious Corner', 'Model Town, Patiala', '9876543002', '$2y$10$samplehash'),
 ('The Good Bowl', 'SCO 3, Bhupindra Road, Model Town, Patiala', '9876543003', '$2y$10$samplehash'),
 ('Burger Singh', 'London Street, Patiala', '9876543004', '$2y$10$samplehash'),
 ('Moti Mahal', 'Kravings,Thapar University,Patiala', '9876543005', '$2y$10$samplehash');
@@ -429,17 +429,17 @@ INSERT INTO DRIVER (Name, phone_no, status) VALUES
 
 -- Locations
 INSERT INTO RESTAURANT_LOCATION (restaurant_id, latitude, longitude, full_address) VALUES
-(1, 30.334060, 76.388830, 'SCO 14, Leela Bhawan Market, Patiala'),
-(2, 30.336160, 76.389230, 'Near Omaxe Mall, Mall Road, Patiala'),
-(3, 30.315060, 76.415030, 'Urban Estate Phase 2, Patiala'),
-(4, 30.339260, 76.381230, '22 Number Phatak, Patiala'),
-(5, 30.342060, 76.383030, 'Bhupindra Road, Patiala');
+(1, 30.334060, 76.388830, 'Bhupindra Road,Patiala'),
+(2, 30.336160, 76.389230, 'Model Town, Patiala'),
+(3, 30.315060, 76.415030, 'SCO 3, Bhupindra Road, Model Town, Patiala'),
+(4, 30.339260, 76.381230, 'London Street, Patiala'),
+(5, 30.342060, 76.383030, 'Kravings,Thapar University,Patiala');
 
 -- Customers
 INSERT INTO CUSTOMER (Firstname, Lastname, Name, email, phone_no, Password) VALUES
-('Vandit', 'Gupta', 'Vandit Gupta', 'vandit@example.com', '9000000001', '$2y$10$samplehash'),
-('Sambhav', 'Jain', 'Sambhav Jain', 'sambhav@example.com', '9000000003', '$2y$10$samplehash'),
-('Abhinav', 'Sharda', 'Abhinav Sharda', 'chirag@example.com', '9000000004', '$2y$10$samplehash');
+('Vandit', 'Gupta', 'Vandit Gupta', 'vandit@example.com', '9000000001', '1234'),
+('Sambhav', 'Jain', 'Sambhav Jain', 'sambhav@example.com', '9000000003', '1234'),
+('Abhinav', 'Sharda', 'Abhinav Sharda', 'abhinav@example.com', '9000000004', '1234');
 
 -- Customer Addresses
 INSERT INTO CUSTOMER_ADDRESS (customer_id, full_address, latitude, longitude, address_type, is_default) VALUES
@@ -461,7 +461,9 @@ INSERT INTO ORDERS (order_id, item_code, quantity, item_price, subtotal) VALUES
 
 -- Delivery Status
 INSERT INTO DELIVERY_STATUS (order_id, driver_id, delivery_address, status, estimated_time, actual_delivery_time) VALUES
-(1, 1, 'Hostel D, Thapar University, Patiala', 'delivered', CURRENT_TIMESTAMP - INTERVAL '30 minutes', CURRENT_TIMESTAMP - INTERVAL '10 minutes');
+(1, 1, 'Hostel D, Thapar University, Patiala', 'delivered', CURRENT_TIMESTAMP - INTERVAL '30 minutes', CURRENT_TIMESTAMP - INTERVAL '10 minutes'),
+(2, 3, 'Hostel B, Thapar University, Patiala', 'in_transit', CURRENT_TIMESTAMP + INTERVAL '15 minutes', NULL),
+(3, 5, 'Hostel D, Thapar University, Patiala', 'assigned', CURRENT_TIMESTAMP + INTERVAL '30 minutes', NULL);
 
 -- Reviews
 INSERT INTO RATING (customer_id, restaurant_id, rating_value, review_text) VALUES
@@ -470,3 +472,27 @@ INSERT INTO RATING (customer_id, restaurant_id, rating_value, review_text) VALUE
 (3, 3, 5, 'Perfect for a healthy lunch. The Khichdi bowl is filling and tasty.'),
 (1, 4, 3, 'Burger was good, but fries were a bit cold on arrival.'),
 (2, 5, 5, 'Authentic spices. The Biryani reminds me of home!');
+
+-- Login Functions
+CREATE OR REPLACE FUNCTION login_customer(p_email VARCHAR, p_password VARCHAR)
+RETURNS TABLE(id INTEGER, fullname VARCHAR, user_email VARCHAR) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT c.customer_id, c.name, c.email
+    FROM CUSTOMER c
+    WHERE c.email = p_email AND c.password = p_password;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION login_admin(p_name VARCHAR, p_password VARCHAR)
+RETURNS TABLE(id INTEGER, fullname VARCHAR) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT a.admin_id, a.name
+    FROM ADMIN a
+    WHERE a.name = p_name AND a.password = p_password;
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION login_customer IS 'Authenticates a customer by email and password';
+COMMENT ON FUNCTION login_admin IS 'Authenticates an admin by name and password';
