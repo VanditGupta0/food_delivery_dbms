@@ -96,11 +96,6 @@ app.post("/api/orders", async (req, res) => {
     );
     const orderId = orderResult.rows[0].order_id;
 
-    await client.query(
-      `INSERT INTO places (customer_id, order_id) VALUES ($1, $2)`,
-      [customer_id, orderId]
-    );
-
     for (const item of validatedItems) {
       await client.query(
         `INSERT INTO orders (order_id, item_code, quantity, item_price, subtotal)

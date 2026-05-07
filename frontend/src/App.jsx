@@ -149,7 +149,7 @@ export default function App() {
         <select value={restaurantId} onChange={(e) => setRestaurantId(e.target.value)}>
           {restaurants.map((r) => (
             <option key={r.restaurant_id} value={r.restaurant_id}>
-              📍 {r.name}
+              📍 {r.name} - {r.address}
             </option>
           ))}
         </select>
@@ -259,6 +259,7 @@ export default function App() {
 
       <div className="nav-tabs">
         <button className={`nav-tab ${activeTab === 'order' ? 'active' : ''}`} onClick={() => setActiveTab('order')}>🛒 Orders</button>
+        <button className={`nav-tab ${activeTab === 'restaurants' ? 'active' : ''}`} onClick={() => setActiveTab('restaurants')}>🏢 Restaurants</button>
         <button className={`nav-tab ${activeTab === 'customers' ? 'active' : ''}`} onClick={() => setActiveTab('customers')}>👥 Customers</button>
         <button className={`nav-tab ${activeTab === 'drivers' ? 'active' : ''}`} onClick={() => setActiveTab('drivers')}>🛵 Drivers</button>
         <button className={`nav-tab ${activeTab === 'admins' ? 'active' : ''}`} onClick={() => setActiveTab('admins')}>🔑 Admins</button>
@@ -272,6 +273,7 @@ export default function App() {
 
       <main>
         {activeTab === 'order' && renderOrderTab()}
+        {activeTab === 'restaurants' && renderTable(['Restaurant ID', 'Name', 'Address', 'Phone No'], restaurants, 'restaurant_id')}
         {activeTab === 'customers' && renderTable(['Customer ID', 'Name', 'Email', 'Phone No', 'Created At'], customers, 'customer_id')}
         {activeTab === 'drivers' && renderTable(['Driver ID', 'Name', 'Phone No', 'Status', 'Updated At'], drivers, 'driver_id')}
         {activeTab === 'admins' && renderTable(['Admin ID', 'Name', 'Created At'], admins, 'admin_id')}
